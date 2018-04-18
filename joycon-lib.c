@@ -104,7 +104,7 @@ void parse_keycode(const uint8_t cur_keymap, const uint8_t pre_keymap) {
             printf("press down ");
         }
         printf(" LEFT\n");
-        send_key("Left", op);
+        printf(" LEFT DONE\n");
     }
     if(diff & JOYCON_BTN_RIGHT) {
         if(op == 0) {

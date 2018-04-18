@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <joycon.h>
 #include <pthread.h>
+#include <math.h>
 
 #define MAX_STR 255
 
@@ -34,11 +35,11 @@ int main(int argc, char **argv) {
         printf("DBG: Set joycon fd to fdset\n");
         FD_SET(ctrl->joycon_L, &rset);
         FD_SET(ctrl->joycon_R, &rset);
-        nfds = 2;
+        nfds = (ctrl->joycon_L > ctrl->joycon_R ? ctrl->joycon_L : ctrl->joycon_R) + 1;
     }
     if(ctrl->type == TYP_PRO) {
         FD_SET(ctrl->pro_control, &rset);
-        nfds = 1;
+        nfds = ctrl->pro_control + 1;
     }
     while(1) {
         res = select(nfds, &rset, NULL, NULL, NULL);
@@ -48,15 +49,15 @@ int main(int argc, char **argv) {
         }
         if(res) {
             printf("DBG: data received\n");
-            pthread_t threadL, threadR;
+            pthread_t threadL = 0, threadR = 0;
             if(FD_ISSET(ctrl->joycon_L, &rset)) {
                 pthread_create(&threadL, NULL, joycon_read, (void *)ctrl->joycon_L);
             }
             if(FD_ISSET(ctrl->joycon_R, &rset)) {
                 pthread_create(&threadR, NULL, joycon_read, (void *)ctrl->joycon_R);
             }
-            pthread_join(threadL, NULL);
-            pthread_join(threadR, NULL);
+            if(threadL) pthread_join(threadL, NULL);
+            if(threadR) pthread_join(threadR, NULL);
         }
     }
     return 0;
