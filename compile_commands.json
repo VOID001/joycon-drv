@@ -1,0 +1,38 @@
+[
+    {
+        "arguments": [
+            "cc",
+            "-c",
+            "-Iinclude",
+            "-o",
+            "joycon-demo",
+            "joycon-lib.c"
+        ],
+        "directory": "/home/void001/CProject/joycon-drv",
+        "file": "joycon-lib.c"
+    },
+    {
+        "arguments": [
+            "cc",
+            "-c",
+            "-Iinclude",
+            "-o",
+            "joycon-demo",
+            "main.c"
+        ],
+        "directory": "/home/void001/CProject/joycon-drv",
+        "file": "main.c"
+    },
+    {
+        "arguments": [
+            "cc",
+            "-c",
+            "-Iinclude",
+            "-o",
+            "joycon-demo",
+            "x.c"
+        ],
+        "directory": "/home/void001/CProject/joycon-drv",
+        "file": "x.c"
+    }
+]

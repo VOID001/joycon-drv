@@ -8,6 +8,7 @@
 #include <string.h>
 
 void parse_keycode(const uint8_t cur_keymap, const uint8_t pre_keymap);
+void debug_hexdump(uint8_t *data, int len);
 
 // Allocate memory, and open the device
 int init_controller(struct controller *ctrl) {
@@ -17,6 +18,13 @@ int init_controller(struct controller *ctrl) {
     p = devs;
     while(p && !((r && l) || pro)) {
         if(IS_JOYCON(p)) {
+            printf("Device Found\n  type: %04hx %04hx\n  path: %s\n  serial_number: %ls", p->vendor_id, p->product_id, p->path, p->serial_number);
+            printf("\n");
+            printf("  Manufacturer: %ls\n", p->manufacturer_string);
+            printf("  Product:      %ls\n", p->product_string);
+            printf("  Release:      %hx\n", p->release_number);
+            printf("  Interface:    %d\n",  p->interface_number);
+            printf("\n");
             printf("we found a joycon\n");
             if(p->product_id == PROD_ID_JOYCON_L) {
                 l = p;
@@ -162,4 +170,23 @@ int send_led_packet(hid_device *handle, uint8_t led_data) {
         printf("send led command 0x%X to hid\n", led_data);
     }
     return n;
+}
+
+// Send subcommand to the hid controller, command, subcommand, argument, commandlen
+int send_subcommand_data_packet(hid_device *handle, const uint8_t *packet, const uint8_t len) {
+    uint8_t payload[0x40];
+    bzero(payload, 0x40);
+    payload[0] = 0x01;
+    payload[1] = 0x00;
+    uint8_t rumbleData[8] = {0x04, 0xB1, 0x01, 0x01, 0xFF, 0xF1, 0xFF, 0xFF};
+    memcpy(payload + 2, rumbleData, 8);
+    memcpy(payload + 10, packet, len);
+    // payload[10 + len] = len - 1;
+    int n = hid_write(handle, payload, 0x40);
+    if(n < 0) {
+        fprintf(stderr, "write to hid device failed, %ls\n", hid_error(handle));
+    } else {
+        printf("send command 0x%X data done\n", packet[0]);
+    }
+    return 0;
 }
